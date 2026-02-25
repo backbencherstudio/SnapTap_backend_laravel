@@ -19,33 +19,109 @@ class SocialiteController extends Controller
     /**
      * Redirect URL for frontend (SPA / Mobile)
      */
-    public function redirect(string $provider): JsonResponse
+    // public function redirect(string $provider): JsonResponse
+    // {
+    //     $this->validateProvider($provider);
+
+    //     return response()->json([
+    //         'url' => Socialite::driver($provider)->stateless()->redirect()->getTargetUrl(),
+    //     ]);
+    // }
+
+    public function redirect(Request $request, string $provider): JsonResponse
     {
         $this->validateProvider($provider);
 
+        $type = $request->query('state', 'app');
+
         return response()->json([
-            'url' => Socialite::driver($provider)->stateless()->redirect()->getTargetUrl(),
+            'url' => Socialite::driver($provider)
+                ->stateless()
+                ->with(['state' => $type])
+                ->redirect()
+                ->getTargetUrl(),
         ]);
     }
 
     /**
      * Handle provider callback
      */
-    public function callback(Request $request, string $provider): JsonResponse
+    // public function callback(Request $request, string $provider): JsonResponse
+    // {
+    //     $this->validateProvider($provider);
+
+    //     $socialUser = Socialite::driver($provider)
+    //         ->stateless()
+    //         ->user();
+
+    //     $user = User::where('email', $socialUser->getEmail())->first();
+
+    //     if ($user?->hasRole('super_admin')) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Something went wrong!',
+    //         ], 403);
+    //     }
+
+    //     if (!$user) {
+    //         $user = User::create([
+    //             'name' => $socialUser->getName() ?? $socialUser->getNickname(),
+    //             'email' => $socialUser->getEmail(),
+    //             'password' => '',
+    //             'email_verified_at' => now(),
+    //         ]);
+
+    //         $user->assignRole('user');
+
+    //         $user->basicSetting()->create();
+
+    //         event(new Registered($user));
+    //     }
+
+    //     $user->forceFill([
+    //         "{$provider}_id" => $socialUser->getId(),
+    //         'email_verified_at' => $user->email_verified_at ?? now(),
+    //     ])->save();
+
+
+
+    //     $token = $user->createToken('social-login')->plainTextToken;
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'token' => $token,
+    //         'user' => $user,
+    //         'role' => $user->getRoleNames(),
+    //     ]);
+    // }
+
+
+    public function callback(Request $request, string $provider)
     {
         $this->validateProvider($provider);
 
-        $socialUser = Socialite::driver($provider)
-            ->stateless()
-            ->user();
+        $type = $request->state ?? 'app';
+
+        $webRedirectUrl = config('app.frontend_url') . "/{$provider}/login";
+
+        try {
+            $socialUser = Socialite::driver($provider)
+                ->stateless()
+                ->user();
+        } catch (\Exception $e) {
+            if ($type === 'app') {
+                return response()->json(['success' => false, 'message' => 'Social login failed'], 401);
+            }
+            return redirect($webRedirectUrl . "?error=auth_failed");
+        }
 
         $user = User::where('email', $socialUser->getEmail())->first();
 
         if ($user?->hasRole('super_admin')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Something went wrong!',
-            ], 403);
+            if ($type === 'app') {
+                return response()->json(['success' => false, 'message' => 'Something went wrong!'], 403);
+            }
+            return redirect($webRedirectUrl . "?error=forbidden");
         }
 
         if (!$user) {
@@ -55,13 +131,9 @@ class SocialiteController extends Controller
                 'password' => '',
                 'email_verified_at' => now(),
             ]);
-
             $user->assignRole('user');
-
             $user->basicSetting()->create();
-
             event(new Registered($user));
-
         }
 
         $user->forceFill([
@@ -69,16 +141,29 @@ class SocialiteController extends Controller
             'email_verified_at' => $user->email_verified_at ?? now(),
         ])->save();
 
-
-
         $token = $user->createToken('social-login')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'token' => $token,
-            'user' => $user,
-            'role' => $user->getRoleNames(),
+        if ($type === 'app') {
+            return response()->json([
+                'success' => true,
+                'token' => $token,
+                'user' => $user,
+                'role' => $user->getRoleNames(),
+            ]);
+        }
+
+        $query = http_build_query([
+            'success' => 'true',
+            'token'   => $token,
+            'user'    => json_encode([
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+            ]),
+            'role'    => json_encode($user->getRoleNames()),
         ]);
+
+        return redirect("{$webRedirectUrl}?{$query}");
     }
 
 

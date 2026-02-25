@@ -116,6 +116,7 @@ class RegisterController extends Controller
             'data' => [
                 'token' => $token,
                 'name'  => $user->name,
+                'two_factor_enabled'  => $user->two_factor_enabled,
                 'role' => $user->getRoleNames(),
             ],
         ], 200);
