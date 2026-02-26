@@ -86,10 +86,17 @@ class SettingController extends Controller
             'twilio_auth_token' => 'nullable|string',
             'twilio_from_number' => 'nullable|string',
 
+            // Stripe
+            'stripe_publishable_key' => 'nullable|string',
+            'stripe_secret_key' => 'nullable|string',
+            'stripe_signing_secret' => 'nullable|string',
+
             // AI
             'auto_ai_reply' => 'nullable|boolean',
             'auto_ai_review_request' => 'nullable|boolean',
             'multi_language_ai' => 'nullable|boolean',
+
+            'chatgpt_api_key' => 'nullable|string',
 
             // Notification
             'new_customer_singup_n' => 'nullable|boolean',

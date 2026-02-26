@@ -90,7 +90,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Reviews
-    Route::controller(ReviewReqController::class)->group(function () {
+    Route::middleware('hasSubscription')->controller(ReviewReqController::class)->group(function () {
         Route::get('review_req', 'index');
         Route::post('review_req/create', 'create');
         Route::put('review_req/update/{id}', 'update');
@@ -99,7 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Ai Agent Routes
-    Route::controller(AiAgentController::class)->group(function () {
+    Route::middleware('hasSubscription')->controller(AiAgentController::class)->group(function () {
         Route::get('ai_agents', 'index');
         Route::post('ai_agents/create', 'create');
         Route::put('ai_agents/update/{id}', 'update');

@@ -100,7 +100,7 @@ class SyncPageReviewsJob implements ShouldQueue
                             'review_reply_id' => $replyId,
                             'review_reply_text' => $replyText,
                             'replied_at' => $repliedAt,
-                            'status' => $status,
+                            'status' => $status, 
                             'reviewed_at' => $item['created_time'],
                         ]
                     );
