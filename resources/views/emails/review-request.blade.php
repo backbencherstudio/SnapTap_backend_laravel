@@ -3,117 +3,113 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>We Value Your Feedback</title>
 </head>
 
-<body>
-    <!-- Container Table-->
-    <table bgcolor="#FFFFFF" width="100%">
-        <tbody>
-            <tr>
-                <td style="font-family: 'Open sans', Arial, sans-serif;color: #000000;font-size: 14px;font-weight: 300;">
-                    <!-- Inner Table-->
-                    <table align="center" bgcolor="#ffffff" cellpadding="20" cellspacing="0" id="mainTable"
-                        style="border:1px solid rgba(0,0,0,0.08);border-bottom:2px solid #E7E7E7;width:550px;margin:auto;min-height:450px;background-color:#fff;border-top-left-radius:6px;border-top-right-radius:6px;overflow:hidden"
-                        width="550px">
-                        <tbody>
-                            <tr>
-                                <td bgcolor="#ffffff" colspan="2"
-                                    style="border-bottom: 0px solid #eaeaea;font-family: 'Open sans', Arial, sans-serif;color: #4b4b4b;font-size: 14px;font-weight: 300;">
-                                    <table align="left" cellpadding="0" width="100%">
-                                        <tbody>
+<body style="margin:0; padding:0; background-color:#f4f6f8; font-family: Arial, sans-serif;">
+
+    <table width="100%" bgcolor="#f4f6f8" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center" style="padding:40px 0;">
+
+                <!-- Main Container -->
+                <table width="600" cellpadding="0" cellspacing="0"
+                    style="background:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="padding:30px 20px; background:#0d6efd;">
+                            <img src="{{ asset('logo.png') }}" alt="Company Logo" width="180" style="display:block;">
+                        </td>
+                    </tr>
+
+                    <!-- Body -->
+                    <tr>
+                        <td style="padding:40px 30px; color:#333333; font-size:16px; line-height:1.6;">
+
+                            <p style="margin:0 0 20px 0;">
+                                Hi <strong>{{ $review->name }}</strong>,
+                            </p>
+
+                            <p style="margin:0 0 20px 0;">
+                                {!! nl2br(e($review->message)) !!}
+                            </p>
+
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td align="center" style="padding: 20px 0;">
+                                        <table border="0" cellspacing="0" cellpadding="0">
                                             <tr>
-                                                <td align="center"
-                                                    style="margin: 0;font-family: 'Open sans', Arial, sans-serif;color: #4b4b4b;font-size: 14px;font-weight: 300;">
-                                                    <img src="https://d19ayerf5ehaab.cloudfront.net/assets/upload-14652/fadd28d1d6efd6ea4d59f593e79e702f1620913807.png"
-                                                        width="240">
+                                                <td align="center" style="border-radius: 8px;"
+                                                    bgcolor="{{ $provider === 'facebook' ? '#1877F2' : '#4285F4' }}">
+                                                    <a href="{{ $provider === 'facebook' ? 'https://www.facebook.com/' . $externalProviderId . '/reviews/' : 'https://search.google.com/local/writereview?placeid=' . $externalProviderId }}"
+                                                        target="_blank"
+                                                        style="
+                                                            font-size: 16px;
+                                                            font-family: Helvetica, Arial, sans-serif;
+                                                            color: #ffffff;
+                                                            text-decoration: none;
+                                                            border-radius: 8px;
+                                                            padding: 14px 30px;
+                                                            border: 1px solid {{ $provider === 'facebook' ? '#1877F2' : '#4285F4' }};
+                                                            display: inline-block;
+                                                            font-weight: bold;">
+
+                                                        @if ($provider === 'facebook')
+                                                            Review us on Facebook
+                                                        @else
+                                                            Review us on Google
+                                                        @endif
+                                                    </a>
                                                 </td>
                                             </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="center"
-                                    style="padding: 0;font-family: 'Open sans', Arial, sans-serif;font-size: 14px;font-weight: 300;">
-                                    <a href="#" title="Read Reviews"><img
-                                            src="https://d19ayerf5ehaab.cloudfront.net/assets/upload-14652/8cb494372e17193c7cea4599bc270bdc1620914646.png"
-                                            width="100%"></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="left" colspan="2" width="100%"
-                                    style="font-family: 'Open sans', Arial, sans-serif;color: #000000;font-size: 14px;font-weight: 300;">
-                                    <p
-                                        style="color:#000000;font-family:'Open Sans', sans-serif;font-weight: 400; font-size: 16px; text-align: left">
-                                        Hi {{ $review->name }},</p>
-                                    <p
-                                        style="color:#000000;font-family:'Open Sans', sans-serif;font-weight: 400; font-size: 16px; text-align: left">
-                                        {!! nl2br(e($review->message)) !!}</p>
-                                </td>
-                            </tr>
-                            {{-- <tr>
-                                <td colspan="2"
-                                    style="background: #ffffff;height: 100px;font-family: 'Open sans', Arial, sans-serif;color: #4b4b4b;font-size: 14px;font-weight: 300;">
-                                    <center>
-                                        <table align="center" bgcolor="#FFFFFF" cellpadding="0"
-                                            style="text-decoration: none;font-size: 12px;background-color: #0000FF;border:1px solid #407ec5; border-radius: 7px; padding-top:11px; padding-bottom:11px;"
-                                            width="35%">
-                                            <tbody>
-                                                <tr>
-                                                    <td align="center" valign="middle"
-                                                        style="font-family: 'Open sans', Arial, sans-serif;color: #4b4b4b;font-size: 14px;font-weight: 600;">
-                                                        <a href="[link]"
-                                                            style="font-family:'Open Sans', sans-serif;font-weight: 600;white-space: nowrap; text-decoration: none; color: #FFFFFF; font-size: 17px;  border-radius: 7px !important;">Write
-                                                            Review</a>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
                                         </table>
-                                    </center>
-                                </td>
-                            </tr> --}}
-                            <tr>
-                                <td align="center" colspan="2" width="100%"
-                                    style="padding-top: 0;font-family: 'Open sans', Arial, sans-serif;color: #4b4b4b;font-size: 14px;font-weight: 300;">
-                                    <a style="color:#0000FF;font-family:'Open Sans', sans-serif;font-weight: 800; font-size: 14px; text-align: center; line-height: 24px;"
-                                        href="{{ $reviewLink }}">I already reviewed this</a>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            </table>
 
-                            <tr bgcolor="0000FF">
-                                <td colspan="2"
-                                    style="font-family: 'Open sans', Arial, sans-serif;color: #4b4b4b;font-size: 14px;font-weight: 300;">
-                                    <center>
-                                        <p
-                                            style="text-align: center;font-size: 15px;font-weight: bold;color: #FFFFFF;margin: 0px !important;padding: 0px !important;line-height: inherit !important;border-collapse: collapse;mso-line-height-rule: exactly;font-family: 'Open sans', Arial, sans-serif;">
-                                            The Woof<br>The woof woof of the woof world</p>
-                                    </center>
-                                </td>
-                            </tr>
-                            <tr bgcolor="444444">
-                                <td colspan="2"
-                                    style="font-family: 'Open sans', Arial, sans-serif;color: #4b4b4b;font-size: 14px;font-weight: 300;">
-                                    <center>
-                                        {{-- <p
-                                            style="text-align: center;font-size: 10px;color: #DDDDDD;margin: 0px !important;padding: 0px !important;line-height: inherit !important;border-collapse: collapse;mso-line-height-rule: exactly;font-family: 'Open sans', Arial, sans-serif;font-weight: 300;">
-                                            Review collection powered by <a href="https://www.reviews.io"
-                                                style="color:#FFFFFF;text-decoration:none;font-weight:bold;">Reviews.io</a>
-                                        </p> --}}
-                                    </center>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    &nbsp;<br>
-                    <!-- Inner Table-->
-                </td>
-            </tr>
-        </tbody>
+
+                            <!-- Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ $reviewLink }}"
+                                            style="background-color:#0d6efd;
+                                                  color:#ffffff;
+                                                  text-decoration:none;
+                                                  padding:14px 28px;
+                                                  border-radius:6px;
+                                                  font-weight:bold;
+                                                  display:inline-block;">
+                                            I Already Reviewed
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="padding:25px; background:#f1f1f1; font-size:13px; color:#777;">
+                            <p style="margin:0 0 5px 0; font-weight:bold;">
+                                {{ config('app.name') }}
+                            </p>
+                            <p style="margin:0;">
+                                © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <!-- Spacing -->
+                <div style="height:30px;"></div>
+
+            </td>
+        </tr>
     </table>
-    <!-- Container Table-->
 
 </body>
 
