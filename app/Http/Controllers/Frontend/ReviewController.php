@@ -37,7 +37,9 @@ class ReviewController extends Controller
         $search    = strtolower($request->query('search', ''));
         $sort      = strtolower($request->query('sort', 'latest'));   // latest / oldest / az
         $limit     = intval($request->query('per_page', 10));
-        $replyType = $request->query('reply_type');                    // ai_reply / manual_reply
+        $replyType = $request->query('reply_type');                    
+        $replyStatus = $request->query('reply_status');                    // ai_reply / manual_reply
+
 
         if ($platform !== 'both') {
             $specificAccount = $accounts->where('provider', $platform)->first();
@@ -90,6 +92,10 @@ class ReviewController extends Controller
 
         if ($status === 'ai_replied') {
             $query->whereNull('review_reply_text');
+        }
+
+        if ($replyStatus) {
+            $query->where('reply_type', '=', $replyStatus);
         }
 
         if ($replyType) {
@@ -146,14 +152,16 @@ class ReviewController extends Controller
                     'reply_id' => $review->review_reply_id,
                     'reply_text' => $review->review_reply_text,
                     'created_time' => \Carbon\Carbon::parse($review->replied_at)->format('Y-m-d H:i:s'),
-                    'reply_type' => $review->ai_agent_id ? 'ai_reply' : 'manual_reply',
+                    'reply_type' =>   $review->reply_type === 'ai_reply' ? 'ai_reply' :
+                     ($review->reply_type === 'manual_reply' ? 'manual_reply' :
+                     ($review->reply_type === 'pending_reply' ? 'pending_reply' :
+                     'pending_reply')),
                 ]] : [],
             ];
         });
 
         return response()->json($reviews);
     }
-
 
     public function reply(Request $request)
     {
@@ -191,9 +199,10 @@ class ReviewController extends Controller
             ->where('provider_review_id', $reviewId)
             ->where('page_id', $pageId)
             ->update([
-                'status'            => 'replied',
-                'review_reply_text' => $comment,
-                'replied_at'        => now()
+                'status'             => 'replied',
+                'reply_type'         => 'manual_reply',
+                'review_reply_text'  => $comment,
+                'replied_at'         => now()
             ]);
 
 
@@ -304,5 +313,4 @@ class ReviewController extends Controller
             return 'Thank you for your review! We appreciate your feedback.';
         }
     }
-
 }

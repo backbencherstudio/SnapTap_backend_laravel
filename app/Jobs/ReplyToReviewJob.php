@@ -83,11 +83,12 @@ class ReplyToReviewJob implements ShouldQueue
 
         $aiAgent->increment('review_count');
 
-        $this->review->update([
-            'status' => 'ai_replied',
-            'review_reply_text' => $replyText,
-            'replied_at'        => now(),
-        ]);
+        $this->review->status = 'ai_replied';
+        $this->review->reply_type = 'ai_reply';
+        $this->review->review_reply_text = $replyText;
+        $this->review->replied_at = now();
+
+        $this->review->save();
 
         //notification
         $notifyEnabled = BasicSetting::where('user_id', $this->review->user_id)
