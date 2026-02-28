@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\SendReviewMessageJob;
 use App\Models\Review;
 use App\Models\Subscription;
+use App\Models\UserBusinessAccount;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -66,20 +67,31 @@ class ReviewReqController extends Controller
             'retries'     => 'integer|min:0',
         ]);
 
+        $userId = Auth::id();
+
+        $businessAccount = UserBusinessAccount::where('user_id', $userId)
+            ->where('provider', $request->provider)
+            ->first();
+
+        if (!$businessAccount) {
+            return response()->json([
+                'success' => false,
+                'message' => "You have not connected your {$request->provider} account yet. Please connect it before sending review requests.",
+            ], 422);
+        }
+
+        $externalProviderId = (int) $businessAccount->provider_id;
+
         $review = Review::create([
             ...$validated,
-            'user_id' => Auth::id(),
+            'user_id' => $userId,
         ]);
 
-        /**
-         * For Createing job for sheduling the task
-         */
-        $review = Review::find($review->id);
-        $userSettings = $review->user->basicSetting;
+        $userSettings = Auth::user()->basicSetting;
 
-        $firstMessageDelay = (int) $userSettings->msg_after_checkin;
-        $nextMessageDelay  = (int) $userSettings->next_message_time;
-        $maxRetries        = (int) $userSettings->re_try_time;
+        $firstMessageDelay = (int) ($userSettings->msg_after_checkin ?? 0);
+        $nextMessageDelay  = (int) ($userSettings->next_message_time ?? 24);
+        $maxRetries        = (int) ($userSettings->re_try_time ?? 3);
 
         SendReviewMessageJob::dispatch(
             $review->id,
@@ -87,8 +99,10 @@ class ReviewReqController extends Controller
             (bool) $request->sent_sms,
             1,
             $nextMessageDelay,
-            $maxRetries
-        )->delay(now()->addHour($firstMessageDelay));
+            $maxRetries,
+            $externalProviderId
+        )->delay(now()->addHours($firstMessageDelay));
+
 
         return response()->json([
             'success' => true,

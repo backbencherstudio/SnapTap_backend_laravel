@@ -78,7 +78,6 @@ class SyncPageReviewsJob implements ShouldQueue
                                 $replyId = $comment['id'] ?? null;
                                 $replyText = $comment['message'] ?? null;
                                 $repliedAt = $comment['created_time'] ?? null;
-                                $status = 'replied';
                                 break;
                             }
                         }

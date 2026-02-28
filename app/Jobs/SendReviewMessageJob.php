@@ -25,6 +25,8 @@ class SendReviewMessageJob implements ShouldQueue
     public int $messageCount;
     public int $nextMessageHours;
     public int $maxRetries;
+    public int $externalProviderId;
+
 
     public function __construct(
         int $reviewId,
@@ -32,7 +34,9 @@ class SendReviewMessageJob implements ShouldQueue
         bool $sendSms = false,
         int $messageCount = 1,
         int $nextMessageHours = 1,
-        int $maxRetries = 5
+        int $maxRetries = 5,
+        int $externalProviderId
+
     ) {
         $this->reviewId = $reviewId;
         $this->sendEmail = $sendEmail;
@@ -40,6 +44,7 @@ class SendReviewMessageJob implements ShouldQueue
         $this->messageCount = $messageCount;
         $this->nextMessageHours = $nextMessageHours;
         $this->maxRetries = $maxRetries;
+        $this->externalProviderId = $externalProviderId;
     }
 
     public function handle(): void
@@ -57,7 +62,7 @@ class SendReviewMessageJob implements ShouldQueue
         if ($this->sendEmail && $review->email) {
             try {
                 Mail::to($review->email)
-                    ->send(new ReviewRequestMail($review, $reviewLink));
+                    ->send(new ReviewRequestMail($review, $reviewLink, $this->externalProviderId));
 
                 $sent = true;
             } catch (\Exception $e) {

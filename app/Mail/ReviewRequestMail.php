@@ -12,11 +12,15 @@ class ReviewRequestMail extends Mailable
 
     public $review;
     public $reviewLink;
+    public $externalProviderId;
+    public $provider;
 
-    public function __construct($review, $reviewLink)
+    public function __construct($review, $reviewLink, $externalProviderId)
     {
         $this->review = $review;
         $this->reviewLink = $reviewLink;
+        $this->externalProviderId = $externalProviderId;
+        $this->provider = $review->provider;
     }
 
     public function build()

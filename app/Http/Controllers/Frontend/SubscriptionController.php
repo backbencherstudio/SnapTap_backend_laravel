@@ -369,7 +369,6 @@ class SubscriptionController extends Controller
             ], 500);
         }
     }
-
     public function convertTrialToPaid(Request $request): JsonResponse
     {
         try {
@@ -391,18 +390,31 @@ class SubscriptionController extends Controller
                 ], 400);
             }
 
-            $subscription->skipTrial();
-            $subscription->refresh();
+            if (!$user->hasDefaultPaymentMethod()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No default payment method found',
+                ], 422);
+            }
+
+            $subscription->updateStripeSubscription([
+                'trial_end' => 'now',
+                'proration_behavior' => 'none',
+            ]);
 
             $subscription->update([
-                'trial_ends_at' => now(),
                 'trial_converted' => true,
                 'trial_metadata->converted_at' => now()->toISOString(),
             ]);
 
+            $subscription->refresh();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Trial converted to paid subscription',
+                'message' => 'Trial ended. Stripe will attempt payment immediately.',
+                'data' => [
+                    'status' => $subscription->stripe_status,
+                ],
             ]);
 
         } catch (\Stripe\Exception\CardException $e) {
@@ -412,7 +424,7 @@ class SubscriptionController extends Controller
                 'error' => $e->getMessage(),
             ], 402);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to convert trial',
